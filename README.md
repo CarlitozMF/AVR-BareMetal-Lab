@@ -63,6 +63,7 @@ Para garantizar la fiabilidad del firmware en entornos de tiempo real, cada mód
 3. **[03_Blink_GPIO_Driver](./projects/projects_m328p/03_Blink_GPIO_Driver):** Implementación de driver GPIO con estructuras y punteros.
 4. **[04_GPIO_Polling_&_Debouncing](./projects/projects_m328p/04_GPIO_Polling):** Sistemas interactivos: Lectura de entradas, detección de flancos y filtrado de ruido mecánico.
 5. **[05_Systick_Timer_HAL_Genérica](./projects/projects_m328p//05_Systick_Timer):** Implementación de una HAL de Timers unificada y Multitarea Cooperativa. Eliminación total de delays bloqueantes.
+6. **[06_LCD_Generic_Driver](./projects/projects_m328p/06_LCD_Generic_Driver):** Desarrollo de un driver de Capa 2 (Device Driver) para displays HD44780.
 
 ---
 
