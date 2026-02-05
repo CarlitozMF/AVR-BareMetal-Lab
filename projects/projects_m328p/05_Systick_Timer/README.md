@@ -115,5 +115,5 @@ Este laboratorio consolida una arquitectura profesional. Al unificar los tres ti
 ---
 
 ## 📚 7. Referencias
-* **ATmega328P Datasheet:** Secciones 15, 16 y 18 (Timers 0, 1 y 2).
+* **ATmega328P Datasheet:** Secciones 14, 15, 16 y 17 (Timers 0, 1 y 2).
 * **Doxygen Documentation Standard:** [Manual de Estilo](https://www.doxygen.nl/manual/docblocks.html).
