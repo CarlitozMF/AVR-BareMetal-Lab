@@ -16,16 +16,15 @@ Los **Fuses** son registros persistentes (no se borran al quitar la energía) qu
 * **High Fuse:** Controla el reset, el arranque (bootloader) y la interfaz SPI.
 * **Extended Fuse:** Configura el Brown-out Detector (BOD) para evitar errores por bajo voltaje.
 
-
-
 ---
 
 ## 🏗️ 3. Configuración Técnica
-Para este laboratorio (y el resto del curso), configuramos el micro para **Full Swing Crystal**:
 
-* **Low Fuse (`0xFF`):** Selecciona cristal externo de alta frecuencia y deshabilita `CKDIV8`.
-* **High Fuse (`0xDA`):** Preserva el EEPROM y habilita el pin de Reset.
-* **Extended Fuse (`0xFD`):** Configura el BOD a 2.7V para estabilidad.
+Según la **Sección 28.2 (Fuse Bits)** del Datasheet del ATmega328P, configuramos el micro para **Full Swing Crystal**:
+
+* **Low Fuse (`0xFF`):** Selecciona cristal externo de alta frecuencia (Tabla 9-3) y deshabilita el bit `CKDIV8` (Sección 9.11).
+* **High Fuse (`0xDA`):** Preserva el EEPROM y habilita el pin de Reset para programación ISP.
+* **Extended Fuse (`0xFD`):** Configura el **Brown-out Detector (BOD)** a un nivel de 2.7V para evitar corrupciones de memoria durante caídas de tensión (Sección 28.5).
 
 ---
 
@@ -47,3 +46,11 @@ avrdude -c usbasp -p m328p -U lfuse:w:0xff:m -U hfuse:w:0xda:m -U efuse:w:0xfd:m
 ## 🏁 6. Conclusión
 
 Sin este paso, el cálculo de `F_CPU 16000000UL` en nuestros laboratorios sería falso. Al completar el **Lab 00**, hemos "desbloqueado" la verdadera potencia del ATmega328P, asegurando que cada instrucción y cada delay se ejecuten exactamente cuando deben.
+
+---
+
+## 📚 7. Referencias
+* **Datasheet:** [ATmega328P - 8-bit AVR Microcontroller (Official)](https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega328_P%20AVR%20Full%20Datasheet%20DS40001906C.pdf)
+* **Fuse Calculator:** [AVR Fuse Calculator](https://www.engbedded.com/fusecalc/) — Herramienta de referencia indispensable para la validación de bits de configuración.
+
+---
