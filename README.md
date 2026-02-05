@@ -8,7 +8,7 @@
 
   # AVR-BareMetal-Lab
   
-  *Desarrollo de firmware para ATmega328P con arquitectura de capas y herramientas open-source.*
+  "Un viaje autodidacta hacia las profundidades del ATmega328P: Redescubriendo el hardware mediante arquitectura de capas y herramientas open-source."
 </div>
 
 ---
