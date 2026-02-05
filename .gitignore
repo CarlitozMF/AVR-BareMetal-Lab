@@ -1,0 +1,24 @@
+# --- Binarios y Temporales de Compilación ---
+build/
+*.elf
+*.hex
+*.obj
+*.o
+*.out
+*.map
+
+# --- Herramientas Locales ---
+# Ignoramos la carpeta de herramientas porque son ejecutables de Windows
+# que no deben vivir en el repositorio de código.
+tools/
+
+# --- Exclusiones de Arquitectura ---
+# Dejamos de lado el attiny85 por ahora
+projects/projects_tn85/
+libs/attiny85
+# --- VS Code ---
+.vscode/
+
+# --- Otros ---
+.DS_Store
+Thumbs.db

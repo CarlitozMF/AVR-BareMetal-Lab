@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "AVR-Portable",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/libs/common",
+                "${workspaceFolder}/libs/atmega328p/Inc",
+                "${workspaceFolder}/libs/attiny85/Inc",
+                "${workspaceFolder}/tools/avr-gcc/avr/include"
+            ],
+            "defines": [
+                "F_CPU=16000000UL",
+                "__AVR_ATmega328P__"
+            ],
+            "compilerPath": "${workspaceFolder}/tools/avr-gcc/bin/avr-gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
