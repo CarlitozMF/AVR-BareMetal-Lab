@@ -25,18 +25,43 @@ Utilizamos el modo **CTC** para establecer la base de tiempo. A diferencia del m
 
 Esto elimina el **error acumulado (*drift*)** que ocurriría si tuviéramos que resetear el contador manualmente por software dentro de una interrupción, garantizando un determinismo absoluto en el tiempo.
 
-#### 🕹️ Mecanismo de Registros:
-* **`WGM` (Waveform Generation Mode):** Se configuran los bits correspondientes en los registros de control (**`TCCRnA/B`**) para seleccionar el modo CTC.
-    * **En Timer 0/2:** Se activa el bit `WGM01` (o `WGM21`).
-    * **En Timer 1:** Se activa el bit `WGM12`.
-* **`OCRnx` (Output Compare Register):** Funciona como el "techo" del conteo. Al ser un periférico de hardware, la comparación es instantánea y no consume ciclos de instrucción del CPU.
-* **`TCNTn` (Timer Counter Register):** Es el registro que incrementa su valor en cada ciclo de reloj (escalado por el prescaler). Al producirse el *match* con `OCRnx`, el hardware pone este registro a `0x00` de forma **atómica**.
+### 🧮 Matemática del Timer (Modo CTC) y Selección de Prescaler
 
-**Cálculo de la precisión de 1ms (@16MHz):**
-Para todos los timers, buscamos una frecuencia de interrupción de $1,000 \text{ Hz}$:
-1. **Prescaler (64):** $16,000,000 / 64 = 250,000 \text{ Hz}$.
-2. **Pasos:** $250,000 \text{ Hz} / 1,000 \text{ Hz} = 250 \text{ pasos}$.
-3. **Valor de Registro:** $OCRnx = 250 - 1 = \mathbf{249}$.
+Para obtener una base de tiempo precisa, nos basamos en la fórmula oficial del datasheet del ATmega328P para el modo **CTC**:
+
+$$f_{OCnx} = \frac{f_{clk\_I/O}}{2 \cdot N \cdot (1 + OCRnx)}$$
+
+Donde:
+* $f_{clk\_I/O}$: Frecuencia del cristal (16 MHz).
+* $N$: Factor del Prescaler.
+* $OCRnx$: Valor del registro de comparación.
+
+#### 1. ¿Por qué seleccionar un Prescaler ($N$) de 64?
+El prescaler es necesario para que el contador de 8 bits (Timer 0) no se desborde antes de alcanzar el milisegundo deseado.
+* Si $N=1$: El timer contaría a 16 MHz. Un registro de 8 bits (máx 255) se desbordaría cada $15.9 \mu s$. Imposible llegar a 1 ms.
+* Si $N=64$: La frecuencia del timer baja a $250,000 \text{ Hz}$. 
+    * Tiempo por cada tick del timer: $1 / 250,000 = 4 \mu s$.
+    * Pasos para 1 ms: $1ms / 4 \mu s = 250$ pasos.
+    * Como 250 es menor a 255, **cabe perfectamente en un registro de 8 bits**, optimizando la resolución sin saturar el periférico.
+
+#### 2. Cálculo del Valor Final de Comparación (`OCRnx`)
+Reorganizando la fórmula para obtener los "pasos" necesarios ($1 + OCRnx$) para una frecuencia de interrupción de $1,000 \text{ Hz}$ ($1 \text{ ms}$):
+
+$$\text{Pasos} = \frac{f_{clk\_I/O}}{N \cdot f_{target}} = \frac{16,000,000 \text{ Hz}}{64 \cdot 1,000 \text{ Hz}} = 250$$
+
+Dado que el hardware comienza a contar desde $0$, el valor que debemos cargar en el registro es $\text{Pasos} - 1$:
+
+$$OCRnx = 250 - 1 = \mathbf{249}$$
+
+
+#### 🕹️ Mecanismo de Registros:
+* **`WGM` (Waveform Generation Mode):** Configura el modo de operación.
+    * **Timer 0/2:** Bit `WGM01` (o `WGM21`) en `1` activa el modo CTC.
+    * **Timer 1:** Bit `WGM12` en `1` activa el modo CTC.
+* **`CSnx` (Clock Select):** Define el prescaler $N$. Para $N=64$:
+    * **Timer 0/1:** `CSn1=1` y `CSn0=1`.
+    * **Timer 2:** `CS22=1` (Nota: Timer 2 tiene un mapeo de bits distinto para el mismo valor de prescaler).
+* **`OCRnx`:** Registro de comparación. El hardware resetea `TCNTn` a $0$ de forma **atómica** inmediatamente después de alcanzar este valor.
 
 ---
 
