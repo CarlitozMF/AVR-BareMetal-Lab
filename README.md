@@ -34,7 +34,7 @@ Para mantener la portabilidad, este proyecto utiliza un conjunto de herramientas
 - **Capa 3 (Aplicación):** Lógica de usuario basada en servicios de drivers.
 
 ## 🧪 Laboratorios
-## 🧪 Laboratorios
+0. **[00_Fuses_&_Clock_Configuration](./docs/fuses):** Configuración de Bits de Fusibles (Fuses)
 1. **[01_Blink_BareMetal](./projects/projects_m328p/01_Blink_BareMetal):** Control de registros mediante bit-shifting manual.
 2. **[02_Blink_Bits](./projects/projects_m328p/02_Blink_Bits):** Uso de la Capa 0 para manipulación de bits.
 3. **[03_Blink_GPIO_Driver](./projects/projects_m328p/03_Blink_GPIO_Driver):** Implementación de driver GPIO con estructuras y punteros.
