@@ -14,8 +14,6 @@ La clave de este laboratorio es el **Mapeo Estructural de Memoria**. En lugar de
 ### El uso de `volatile` y Punteros:
 Al declarar `volatile uint8_t *PORT`, le indicamos al compilador que el valor en esa dirección de memoria puede cambiar fuera del flujo del programa (por el hardware). Esto evita que el optimizador del compilador elimine lecturas o escrituras que considera "redundantes", asegurando que cada instrucción llegue al silicio.
 
-
-
 ---
 
 ## 🏗️ 3. Arquitectura del Software
