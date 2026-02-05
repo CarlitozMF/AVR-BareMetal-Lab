@@ -20,7 +20,7 @@ Los **Fuses** son registros persistentes (no se borran al quitar la energía) qu
 
 ## 🏗️ 3. Configuración Técnica
 
-Según la **Sección 28.2 (Fuse Bits)** del Datasheet del ATmega328P, configuramos el micro para **Full Swing Crystal**:
+Según la **Sección 2.8 (System Clock and Clock Options)** del Datasheet del ATmega328P, configuramos el micro para **Full Swing Crystal**:
 
 * **Low Fuse (`0xFF`):** Selecciona cristal externo de alta frecuencia (Tabla 9-3) y deshabilita el bit `CKDIV8` (Sección 9.11).
 * **High Fuse (`0xDA`):** Preserva el EEPROM y habilita el pin de Reset para programación ISP.
@@ -50,7 +50,7 @@ Sin este paso, el cálculo de `F_CPU 16000000UL` en nuestros laboratorios sería
 ---
 
 ## 📚 7. Referencias
-* **Datasheet:** [ATmega328P - 8-bit AVR Microcontroller (Official)](https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega328_P%20AVR%20Full%20Datasheet%20DS40001906C.pdf)
+* **Datasheet:** [ATmega328P - 8-bit AVR Microcontroller (Official)](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf)
 * **Fuse Calculator:** [AVR Fuse Calculator](https://www.engbedded.com/fusecalc/) — Herramienta de referencia indispensable para la validación de bits de configuración.
 
 ---
