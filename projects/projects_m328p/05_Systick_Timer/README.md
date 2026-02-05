@@ -19,10 +19,18 @@ Este microcontrolador cuenta con tres temporizadores independientes. Nuestra HAL
 | **Timer 1** | 16 bits | Alta precisión, 16 bits reales. | Servomotores, medidas de frecuencia. |
 | **Timer 2** | 8 bits | Capacidad asíncrona. | RTC, Low Power Modes. |
 
+### ⚙️ Configuración del Modo CTC (Clear Timer on Compare Match)
 
+Utilizamos el modo **CTC** para establecer la base de tiempo. A diferencia del modo normal (*Overflow*), donde el contador debe llegar a su valor máximo ($255$ o $65,535$) para reiniciar, el hardware resetea el contador a cero automáticamente en el instante exacto en que alcanza el valor del registro de comparación (**`OCRnx`**).
 
-### Configuración del Modo CTC (Clear Timer on Compare Match)
-Utilizamos el modo **CTC** para establecer la base de tiempo. A diferencia del modo normal, el hardware resetea el contador a cero automáticamente al alcanzar el valor del registro de comparación (`OCRnx`), eliminando el error acumulado por latencia de software.
+Esto elimina el **error acumulado (*drift*)** que ocurriría si tuviéramos que resetear el contador manualmente por software dentro de una interrupción, garantizando un determinismo absoluto en el tiempo.
+
+#### 🕹️ Mecanismo de Registros:
+* **`WGM` (Waveform Generation Mode):** Se configuran los bits correspondientes en los registros de control (**`TCCRnA/B`**) para seleccionar el modo CTC.
+    * **En Timer 0/2:** Se activa el bit `WGM01` (o `WGM21`).
+    * **En Timer 1:** Se activa el bit `WGM12`.
+* **`OCRnx` (Output Compare Register):** Funciona como el "techo" del conteo. Al ser un periférico de hardware, la comparación es instantánea y no consume ciclos de instrucción del CPU.
+* **`TCNTn` (Timer Counter Register):** Es el registro que incrementa su valor en cada ciclo de reloj (escalado por el prescaler). Al producirse el *match* con `OCRnx`, el hardware pone este registro a `0x00` de forma **atómica**.
 
 **Cálculo de la precisión de 1ms (@16MHz):**
 Para todos los timers, buscamos una frecuencia de interrupción de $1,000 \text{ Hz}$:
@@ -40,8 +48,6 @@ Hemos evolucionado hacia una **HAL Paramétrica**. El usuario decide qué instan
 - **`TIMER_Init(instance)`:** Configura los registros específicos del timer elegido (manejando las sutiles diferencias de bits de prescaler entre el Timer 0/1 y el Timer 2).
 - **`get_tick()`:** Retorna el conteo global de milisegundos de forma atómica.
 - **`delay_ms_tick()`:** Retardo preciso basado en hardware (bloqueante pero preciso).
-
-
 
 ---
 

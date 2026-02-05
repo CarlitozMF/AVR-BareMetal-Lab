@@ -28,14 +28,33 @@ Para mantener la portabilidad, este proyecto utiliza un conjunto de herramientas
 - **Automatización:** GNU Make
 - **Hardware:** USBASP + ATmega328P
 
+---
+
 ## 📂 Estructura de Capas
-La arquitectura se divide en capas de abstracción para garantizar portabilidad y orden:
+La arquitectura del proyecto sigue un modelo de diseño jerárquico. Esto permite que el código sea escalable, fácil de testear y, sobre todo, portable entre diferentes microcontroladores de la familia AVR.
 
-* **Capa 0 (Common):** Macros fundamentales de manipulación de bits atómicas (`bits.h`). El cimiento matemático del proyecto.
-* **Capa 1 (Hardware/Drivers):** Abstracción de registros de periféricos mediante estructuras y punteros volátiles (`gpio.h/c`).
-* **Capa 3 (Aplicación):** Lógica de alto nivel que consume los servicios de las capas inferiores, totalmente agnóstica de las direcciones de memoria.
+* **Capa 0 (Common - Utils):** Contiene las macros fundamentales de manipulación atómica de bits (`bits.h`). Es el cimiento matemático y lógico sobre el cual se construye todo el firmware.
+* **Capa 1 (HAL - Hardware Abstraction Layer):** Abstracción directa de los periféricos internos del MCU (GPIO, Timers, ADC, UART). Utiliza estructuras y punteros volátiles para mapear registros, ocultando la complejidad del hardware a las capas superiores.
+* **Capa 2 (Device Drivers):** Drivers para componentes externos al silicio (LCD 16x2, Sensores I2C/SPI, Drivers de Motores). Esta capa consume servicios de la HAL (Capa 1) y provee funciones de alto nivel para dispositivos específicos.
+* **Capa 3 (Aplicación):** Lógica de control principal, Máquinas de Estado Finitos (MEF) y planificación de tareas. Es totalmente agnóstica de las direcciones de memoria y se comunica exclusivamente mediante las APIs de las capas inferiores.
 
+---
 
+## 🎯 Objetivos del Proyecto
+Este repositorio tiene como finalidad demostrar el dominio integral del ecosistema de 8 bits mediante las siguientes metas técnicas:
+* **Soberanía Tecnológica:** Prescindir de librerías de alto nivel (Arduino/HALs comerciales) para comprender el flujo de datos desde el registro hasta la aplicación.
+* **Modularidad y Reutilización:** Construir una biblioteca de drivers (HAL) propia, escalable y documentada bajo estándares industriales.
+* **Gestión de Recursos:** Optimizar el uso de memoria (Flash/RAM) y ciclos de CPU mediante el uso estratégico de interrupciones y periféricos internos.
+* **Documentación Técnica:** Mantener un estándar de documentación (Doxygen/Markdown) que permita la trazabilidad de cada decisión de diseño.
+
+---
+
+## 🛡️ Pilares de Robustez
+Para garantizar la fiabilidad del firmware en entornos de tiempo real, cada módulo desarrollado en este laboratorio se rige por tres principios de grado industrial:
+
+* **🧬 Atomicidad y Secciones Críticas:** Gestión rigurosa del registro de estado `SREG` y el uso de `cli()`/`sei()` para proteger el acceso a variables compartidas (como los contadores de 32 bits en arquitecturas de 8 bits), evitando condiciones de carrera.
+* **💎 Encapsulamiento y Calificadores:** Uso mandatorio de `static` para limitar el alcance de variables a nivel de módulo y `volatile` para asegurar que el compilador respete los cambios de estado generados por el hardware o las ISR.
+* **⚡ Eficiencia y Concurrencia:** Implementación de **Multitarea Cooperativa** y planificación basada en eventos (Timers/EXTI). Se prioriza liberar el CPU de esperas activas (`busy-waiting`) para permitir un procesamiento concurrente y de bajo consumo.
 
 ## 🧪 Laboratorios
 0. **[00_Fuses_Config](./projects/projects_m328p/00_Fuses_Config):** Configuración de Bits de Fusibles (Fuses) y Clock.
@@ -43,6 +62,7 @@ La arquitectura se divide en capas de abstracción para garantizar portabilidad 
 2. **[02_Blink_Bits](./projects/projects_m328p/02_Blink_Bits):** Uso de la Capa 0 para manipulación de bits.
 3. **[03_Blink_GPIO_Driver](./projects/projects_m328p/03_Blink_GPIO_Driver):** Implementación de driver GPIO con estructuras y punteros.
 4. **[04_GPIO_Polling_&_Debouncing](./projects/projects_m328p/04_GPIO_Polling):** Sistemas interactivos: Lectura de entradas, detección de flancos y filtrado de ruido mecánico.
+5. **[05_Systick_Timer_HAL_Genérica](./projects/05_Systick_Timer):** **(Nuevo)** Implementación de una HAL de Timers unificada y Multitarea Cooperativa. Eliminación total de delays bloqueantes.
 
 ---
 
