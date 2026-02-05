@@ -16,12 +16,13 @@
 ## 🚀 Descripción
 Exploración profunda del **ATmega328P** mediante firmware **Bare Metal** y arquitectura de capas. Este repositorio despliega una **HAL personalizada** desde cero, utilizando un toolchain profesional (**avr-gcc + Makefiles**). Ideal para ingenieros que buscan dominar el control total del hardware sin dependencias, desde bits hasta drivers modulares.
 
-Este repositorio contiene una serie de laboratorios técnicos enfocados en el desarrollo de firmware para el microcontrolador **ATmega328P** utilizando un enfoque **Bare Metal** y herramientas de software libre.
+## 🛠️ Toolchain & Entorno
+Para mantener la portabilidad, este proyecto utiliza un conjunto de herramientas externas. Puedes obtener el entorno completo de compilación en el siguiente repositorio auxiliar:
 
-## 🚀 Objetivo
-Demostrar la implementación de una arquitectura de software por capas (HAL) sin depender de librerías de terceros (Arduino, HALs externas), orquestando todo el proceso mediante **Makefiles** personalizados y el toolchain **avr-gcc**.
+👉 **[AVR-Toolchain-Portable](https://github.com/TuUsuario/AVR-Toolchain-Portable)**
 
-## 🛠️ Toolchain
+> **Nota:** Para que los Makefiles funcionen por defecto, el contenido del repositorio de herramientas debe clonarse o copiarse en una carpeta llamada `tools/` en la raíz de este directorio.
+
 - **Compilador:** avr-gcc 15.2.0 (Portable)
 - **Carga de Firmware:** avrdude
 - **Automatización:** GNU Make
