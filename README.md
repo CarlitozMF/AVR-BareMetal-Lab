@@ -64,6 +64,7 @@ Para garantizar la fiabilidad del firmware en entornos de tiempo real, cada mód
 4. **[04_GPIO_Polling_&_Debouncing](./projects/projects_m328p/04_GPIO_Polling):** Sistemas interactivos: Lectura de entradas, detección de flancos y filtrado de ruido mecánico.
 5. **[05_Systick_Timer_HAL_Genérica](./projects/projects_m328p//05_Systick_Timer):** Implementación de una HAL de Timers unificada y Multitarea Cooperativa. Eliminación total de delays bloqueantes.
 6. **[06_LCD_Generic_Driver](./projects/projects_m328p/06_LCD_Generic_Driver):** Desarrollo de un driver de Capa 2 (Device Driver) para displays HD44780 y aplicación de Multitarea Cooperativa.
+7. **[07_EXTI_Event_Driven_HAL](./projects/projects_m328p/07_EXTI_Event_Driven_HAL):** Implementación de interrupciones externas (EXTI) en Capa 1 y gestión de eventos mediante **Flags** y **Debounce Atómico**. Se introduce el concepto de programación reactiva para optimizar el uso del CPU y garantizar una interfaz HMI fluida sin bloqueos.
 
 ---
 

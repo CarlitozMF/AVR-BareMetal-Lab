@@ -88,7 +88,7 @@ int main(void) {
             t_previo_heartbeat = get_tick();
         }
 
-        /* --- Tarea 2: Contador de Segundos --- */
+/* --- Tarea 2: Contador de Segundos --- */
         if (get_tick() - t_previo_segundos >= 1000) {
             segundos++;
             LCD_SetCursor(0, 8);
@@ -102,7 +102,7 @@ int main(void) {
             t_previo_segundos = get_tick();
         }
 
-        /* --- Tarea 3: Botón y Rayo --- */
+/* --- Tarea 3: Botón y Rayo --- */
         if (GPIO_ReadPin(GPIO_D, 2) == GPIO_LOW) {
             if (get_tick() - t_previo_boton >= 200) {
                 estado_led = !estado_led;
