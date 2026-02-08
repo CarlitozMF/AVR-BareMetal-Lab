@@ -1,130 +1,160 @@
 /**
- * @file lcd.h
- * @brief Driver genérico para pantallas LCD Hitachi HD44780 (16x2, 20x4).
- * @author CarlitozMF (Basado en arquitectura de capas)
+ * @file lcd_driver.c
+ * @brief Implementación del driver para displays LCD basados en el controlador Hitachi HD44780.
+ * @author CarlitozMF
  * @date 2026
- * * @details Este driver implementa una Capa 2 (Device Driver) que es totalmente
- * agnóstica al hardware. Se comunica con el microcontrolador a través de la
- * Capa 1 (GPIO/Timer) permitiendo una portabilidad total entre AVRs.
- */
-/**
- * @file lcd.c
- * @brief Implementación de la lógica de comunicación para LCD en modo 4 bits.
+ * * @details Este driver gestiona la comunicación en modo de 4 bits. Utiliza punteros a registros 
+ * para garantizar la independencia del hardware mientras mantiene la eficiencia del acceso 
+ * directo. Los tiempos de delay han sido validados mediante analizador lógico para asegurar 
+ * compatibilidad con clones del controlador original.
  */
 
+#ifndef F_CPU
+#define F_CPU 16000000UL /**< Frecuencia de CPU por defecto si no se define en el Makefile */
+#endif
+
+#include <avr/io.h>
+#include <util/delay.h>
 #include "lcd_driver.h"
+#include "bits.h" /* Capa Common: Macros SET_BIT, CLR_BIT, etc. */
 
-/* Handle estático para guardar la referencia a la configuración */
-static const LCD_Config_t *lcd_handle;
+/** * @brief Instancia local de configuración.
+ * @note Se almacena en SRAM para persistir las direcciones de los puertos (punteros) 
+ * pasados desde el main, evitando lecturas erróneas desde la memoria de programa.
+ */
+static LCD_Config_t _lcd;
 
-/* Offsets de memoria DDRAM según el datasheet del HD44780 */
-static const uint8_t row_offsets_16x2[] = { 0x00, 0x40 };
-static const uint8_t row_offsets_20x4[] = { 0x00, 0x40, 0x14, 0x54 };
-
-/* --- Funciones Privadas (Encapsulamiento) --- */
+/* --- Funciones Privadas (Static) --- */
 
 /**
- * @brief Genera el pulso de Enable (E) para validar datos/comandos.
+ * @brief Genera un pulso de habilitación (Enable) en el display.
+ * @details El pulso de 150us es superior al estándar (1us) para soportar pantallas
+ * con controladores de baja calidad o cables largos.
  */
 static void LCD_PulseEnable(void) {
-    GPIO_WritePin(lcd_handle->port_en, lcd_handle->pin_en, GPIO_HIGH);
-    delay_ms_tick(1); 
-    GPIO_WritePin(lcd_handle->port_en, lcd_handle->pin_en, GPIO_LOW);
-    delay_ms_tick(1);
+    SET_BIT(*_lcd.port_en, _lcd.pin_en);
+    _delay_us(150);  /* Validado con captura de analizador lógico */
+    CLR_BIT(*_lcd.port_en, _lcd.pin_en);
+    _delay_us(200);  /* Tiempo de espera para que el controlador procese el flanco */
 }
 
 /**
- * @brief Envía un nible (4 bits) al bus de datos.
+ * @brief Envía un nibble de 4 bits a los pines de datos D4-D7.
+ * @param nibble Valor de 4 bits (bits 0-3 del parámetro).
+ * @details Realiza una escritura bit a bit para permitir el uso de pines en diferentes puertos.
  */
 static void LCD_SendNibble(uint8_t nibble) {
-    GPIO_WritePin(lcd_handle->port_d4, lcd_handle->pin_d4, (nibble >> 0) & 0x01);
-    GPIO_WritePin(lcd_handle->port_d5, lcd_handle->pin_d5, (nibble >> 1) & 0x01);
-    GPIO_WritePin(lcd_handle->port_d6, lcd_handle->pin_d6, (nibble >> 2) & 0x01);
-    GPIO_WritePin(lcd_handle->port_d7, lcd_handle->pin_d7, (nibble >> 3) & 0x01);
+    (nibble & 0x01) ? SET_BIT(*_lcd.port_d4, _lcd.pin_d4) : CLR_BIT(*_lcd.port_d4, _lcd.pin_d4);
+    (nibble & 0x02) ? SET_BIT(*_lcd.port_d5, _lcd.pin_d5) : CLR_BIT(*_lcd.port_d5, _lcd.pin_d5);
+    (nibble & 0x04) ? SET_BIT(*_lcd.port_d6, _lcd.pin_d6) : CLR_BIT(*_lcd.port_d6, _lcd.pin_d6);
+    (nibble & 0x08) ? SET_BIT(*_lcd.port_d7, _lcd.pin_d7) : CLR_BIT(*_lcd.port_d7, _lcd.pin_d7);
     LCD_PulseEnable();
 }
 
 /**
- * @brief Envía un byte completo dividiéndolo en dos nibles.
+ * @brief Envía un byte completo al controlador dividiéndolo en dos nibbles.
+ * @param byte El comando o dato a enviar.
+ * @param is_data Flag de selección: 1 para datos (RS High), 0 para comandos (RS Low).
  */
-static void LCD_SendByte(uint8_t byte, gpio_state_t mode) {
-    GPIO_WritePin(lcd_handle->port_rs, lcd_handle->pin_rs, mode);
-    LCD_SendNibble(byte >> 4);   /* Nible alto */
-    LCD_SendNibble(byte & 0x0F); /* Nible bajo */
+static void LCD_SendByte(uint8_t byte, uint8_t is_data) {
+    (is_data) ? SET_BIT(*_lcd.port_rs, _lcd.pin_rs) : CLR_BIT(*_lcd.port_rs, _lcd.pin_rs);
+    
+    LCD_SendNibble(byte >> 4);   /* Envía los 4 bits más significativos primero */
+    _delay_us(100);              /* Tiempo entre nibbles */
+    LCD_SendNibble(byte & 0x0F); /* Envía los 4 bits menos significativos */
+    _delay_ms(2);                /* Delay de seguridad para comandos lentos */
 }
 
-/* --- Implementación de Funciones Públicas --- */
+/* --- Implementación de la API Pública --- */
 
+/**
+ * @brief Inicializa el hardware y el controlador LCD.
+ * @param config Puntero a la estructura de configuración.
+ * @note Implementa la secuencia de "Software Reset" necesaria para el modo de 4 bits.
+ */
 void LCD_Init(const LCD_Config_t *config) {
-    lcd_handle = config;
+    _lcd = *config; /* Copia profunda de la configuración a SRAM */
 
-    /* Configurar pines como salida */
-    GPIO_InitPin(lcd_handle->port_rs, lcd_handle->pin_rs, GPIO_OUTPUT);
-    GPIO_InitPin(lcd_handle->port_en, lcd_handle->pin_en, GPIO_OUTPUT);
-    GPIO_InitPin(lcd_handle->port_d4, lcd_handle->pin_d4, GPIO_OUTPUT);
-    GPIO_InitPin(lcd_handle->port_d5, lcd_handle->pin_d5, GPIO_OUTPUT);
-    GPIO_InitPin(lcd_handle->port_d6, lcd_handle->pin_d6, GPIO_OUTPUT);
-    GPIO_InitPin(lcd_handle->port_d7, lcd_handle->pin_d7, GPIO_OUTPUT);
+    _delay_ms(150); /* Tiempo de espera tras el encendido (VDD estable) */
 
-    /* Secuencia de inicialización crítica del Datasheet */
-    delay_ms_tick(50); 
-    GPIO_WritePin(lcd_handle->port_rs, lcd_handle->pin_rs, GPIO_LOW);
-    
-    /* Forzar modo 4 bits */
+    /* Secuencia de inicialización forzada del HD44780 */
+    LCD_SendNibble(0x03); _delay_ms(5);
+    LCD_SendNibble(0x03); _delay_ms(1);
     LCD_SendNibble(0x03);
-    delay_ms_tick(5);
-    LCD_SendNibble(0x03);
-    delay_ms_tick(1);
-    LCD_SendNibble(0x03);
-    LCD_SendNibble(0x02); 
+    LCD_SendNibble(0x02); /* Configura definitivamente el modo 4 bits */
 
-    /* Configuración por defecto */
-    LCD_SendByte(0x28, GPIO_LOW); /* Modo 4 bits, 2 líneas, 5x8 font */
-    LCD_SendByte(0x0C, GPIO_LOW); /* Display ON, Cursor OFF */
-    LCD_SendByte(0x06, GPIO_LOW); /* Incremento automático del cursor */
+    /* Configuración por defecto: Interfaz 4-bits, 2 líneas, fuente 5x8 */
+    LCD_SendByte(0x28, 0); 
+    /* Display ON, Cursor OFF según el enum del driver */
+    LCD_SendByte(0x0C, 0); 
     LCD_Clear();
 }
 
-void LCD_SetCursor(uint8_t row, uint8_t col) {
-    uint8_t address = 0;
-    if (lcd_handle->type == LCD_16X2) {
-        address = row_offsets_16x2[row % 2] + col;
-    } else {
-        address = row_offsets_20x4[row % 4] + col;
-    }
-    LCD_SendByte(0x80 | address, GPIO_LOW);
-}
-
+/**
+ * @brief Limpia la memoria de video y resetea el cursor.
+ */
 void LCD_Clear(void) {
-    LCD_SendByte(0x01, GPIO_LOW);
-    delay_ms_tick(2); /* Clear requiere 1.52ms según datasheet */
-}
-
-void LCD_WriteChar(char data) {
-    LCD_SendByte(data, GPIO_HIGH);
-}
-
-void LCD_Print(const char *str) {
-    while (*str) LCD_WriteChar(*str++);
-}
-
-void LCD_SetCursorMode(lcd_cursor_mode_t mode) {
-    LCD_SendByte((uint8_t)mode, GPIO_LOW);
-}
-
-void LCD_Shift(lcd_shift_dir_t direction) {
-    LCD_SendByte((uint8_t)direction, GPIO_LOW);
+    LCD_SendByte(0x01, 0);
+    _delay_ms(5); /* La operación más lenta del display */
 }
 
 /**
- * @brief Crea un carácter personalizado.
- * @param location Posición 0-7.
- * @param charmap Array de 8 bytes (5 bits de ancho).
+ * @brief Posiciona el cursor en una coordenada (fila, columna).
+ * @param row Fila (0-1 para 16x2, 0-3 para 20x4).
+ * @param col Columna (0-15 o 0-19).
+ */
+void LCD_SetCursor(uint8_t row, uint8_t col) {
+    uint8_t addr;
+    if (_lcd.type == LCD_20X4) {
+        uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
+        addr = 0x80 + row_offsets[row] + col;
+    } else {
+        addr = (row == 0) ? (0x80 + col) : (0xC0 + col);
+    }
+    LCD_SendByte(addr, 0);
+}
+
+/**
+ * @brief Escribe una cadena de texto en la posición actual.
+ * @param str Puntero a la cadena (string) terminada en null.
+ */
+void LCD_Print(const char *str) {
+    while (*str) LCD_SendByte((uint8_t)(*str++), 1);
+}
+
+/**
+ * @brief Escribe un único carácter.
+ * @param data Byte de datos o carácter ASCII.
+ */
+void LCD_WriteChar(char data) {
+    LCD_SendByte((uint8_t)data, 1);
+}
+
+/**
+ * @brief Cambia el aspecto del cursor (Blink, On, Off).
+ * @param mode Valor definido en @ref lcd_cursor_mode_t.
+ */
+void LCD_SetCursorMode(lcd_cursor_mode_t mode) {
+    LCD_SendByte((uint8_t)mode, 0);
+}
+
+/**
+ * @brief Desplaza el contenido de la pantalla sin modificar la memoria DDRAM.
+ * @param direction Dirección definida en @ref lcd_shift_dir_t.
+ */
+void LCD_Shift(lcd_shift_dir_t direction) {
+    LCD_SendByte((uint8_t)direction, 0);
+}
+
+/**
+ * @brief Almacena un carácter personalizado en la CGRAM.
+ * @param location Índice de memoria (0 a 7).
+ * @param charmap Matriz de 8 bytes (5 bits significativos por fila).
  */
 void LCD_CreateCustomChar(uint8_t location, uint8_t charmap[]) {
-    location &= 0x07; // Solo 8 espacios disponibles
-    LCD_SendByte(0x40 | (location << 3), GPIO_LOW); // Apuntar a CGRAM
+    location &= 0x7; /* Máximo 8 caracteres personalizados */
+    LCD_SendByte(0x40 | (location << 3), 0);
     for (uint8_t i = 0; i < 8; i++) {
-        LCD_SendByte(charmap[i], GPIO_HIGH);
+        LCD_SendByte(charmap[i], 1);
     }
 }

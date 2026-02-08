@@ -57,14 +57,14 @@ Para garantizar la fiabilidad del firmware en entornos de tiempo real, cada mód
 * **⚡ Eficiencia y Concurrencia:** Implementación de **Multitarea Cooperativa** y planificación basada en eventos (Timers/EXTI). Se prioriza liberar el CPU de esperas activas (`busy-waiting`) para permitir un procesamiento concurrente y de bajo consumo.
 
 ## 🧪 Laboratorios
-0. **[00_Fuses_Config](./projects/projects_m328p/00_Fuses_Config):** Configuración de Bits de Fusibles (Fuses) y Clock.
-1. **[01_Blink_BareMetal](./projects/projects_m328p/01_Blink_BareMetal):** Control de registros mediante bit-shifting manual.
-2. **[02_Blink_Bits](./projects/projects_m328p/02_Blink_Bits):** Uso de la Capa 0 para manipulación de bits.
-3. **[03_Blink_GPIO_Driver](./projects/projects_m328p/03_Blink_GPIO_Driver):** Implementación de driver GPIO con estructuras y punteros.
-4. **[04_GPIO_Polling_&_Debouncing](./projects/projects_m328p/04_GPIO_Polling):** Sistemas interactivos: Lectura de entradas, detección de flancos y filtrado de ruido mecánico.
-5. **[05_Systick_Timer_HAL_Genérica](./projects/projects_m328p//05_Systick_Timer):** Implementación de una HAL de Timers unificada y Multitarea Cooperativa. Eliminación total de delays bloqueantes.
-6. **[06_LCD_Generic_Driver](./projects/projects_m328p/06_LCD_Generic_Driver):** Desarrollo de un driver de Capa 2 (Device Driver) para displays HD44780 y aplicación de Multitarea Cooperativa.
-7. **[07_EXTI_Event_Driven_HAL](./projects/projects_m328p/07_EXTI_Event_Driven_HAL):** Implementación de interrupciones externas (EXTI) en Capa 1 y gestión de eventos mediante **Flags** y **Debounce Atómico**. Se introduce el concepto de programación reactiva para optimizar el uso del CPU y garantizar una interfaz HMI fluida sin bloqueos.
+0. **[00_Fuses_Config](./projects/00_Fuses_Config):** Configuración de Bits de Fusibles (Fuses) y Clock.
+1. **[01_Blink_BareMetal](./projects/01_Blink_BareMetal):** Control de registros mediante bit-shifting manual.
+2. **[02_Blink_Bits](./projects/02_Blink_Bits):** Uso de la Capa 0 para manipulación de bits.
+3. **[03_Blink_GPIO_Driver](./projects/03_Blink_GPIO_Driver):** Implementación de driver GPIO con estructuras y punteros.
+4. **[04_GPIO_Polling_&_Debouncing](./projects/04_GPIO_Polling):** Sistemas interactivos: Lectura de entradas, detección de flancos y filtrado de ruido mecánico.
+5. **[05_Systick_Timer_HAL_Genérica](./projects/05_Systick_Timer):** Implementación de una HAL de Timers unificada y Multitarea Cooperativa. Eliminación total de delays bloqueantes.
+6. **[06_LCD_Generic_Driver](./projects/06_LCD_Generic_Driver):** Desarrollo de un driver de Capa 2 (Device Driver) para displays HD44780 y aplicación de Multitarea Cooperativa.
+7. **[07_EXTI_Event_Driven_HAL](./projects/07_EXTI_Event_Driven_HAL):** Implementación de interrupciones externas (EXTI) en Capa 1 y gestión de eventos mediante **Flags** y **Debounce Atómico**. Se introduce el concepto de programación reactiva para optimizar el uso del CPU y garantizar una interfaz HMI fluida sin bloqueos.
 
 ---
 

@@ -12,10 +12,6 @@ build/
 # que no deben vivir en el repositorio de código.
 tools/
 
-# --- Exclusiones de Arquitectura ---
-# Dejamos de lado el attiny85 por ahora
-projects/projects_tn85/
-libs/attiny85
 # --- VS Code ---
 .vscode/
 
