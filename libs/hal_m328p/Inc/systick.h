@@ -1,5 +1,5 @@
 /**
- * @file timer.h
+ * @file systick.h
  * @brief Driver de Abstracción Genérico para Timers del ATmega328P.
  * @author Mamani Flores Carlos
  * @date 2026
@@ -7,8 +7,8 @@
  * internos del MCU, permitiendo generar un System Tick (Systick) de 1ms.
  */
 
-#ifndef TIMER_H_
-#define TIMER_H_
+#ifndef SYSTICK_H_
+#define SYSTICK_H_
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -27,7 +27,7 @@ typedef enum {
  * * @param instance Instancia del timer a configurar (TIMER_0, TIMER_1 o TIMER_2).
  * @note Requiere que el cristal del sistema sea de 16MHz.
  */
-void TIMER_Init(timer_instance_t instance);
+void Systick_Init(timer_instance_t instance);
 
 /**
  * @brief Retorna los milisegundos transcurridos desde el arranque del sistema.
@@ -44,4 +44,4 @@ uint32_t get_tick(void);
  */
 void delay_ms_tick(uint32_t ms);
 
-#endif /* TIMER_H_ */
+#endif /* SYSTICK_H_ */

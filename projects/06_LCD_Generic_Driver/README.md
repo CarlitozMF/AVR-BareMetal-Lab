@@ -5,7 +5,7 @@
 
 * **Implementar un driver de Capa 2 (Device Driver):** agnóstico al hardware, basado en manipulación directa de registros mediante punteros y la capa `bits.h`.
 * **Desacoplar el Driver LCD del Timer:** Los delays de inicialización y protocolo se gestionan de forma interna para dejar el **Timer 0** como recurso exclusivo del Sistema (Systick).
-* **Centralización de Hardware:** Implementar `hardware.h` para abstraer el pinout físico de la lógica del driver.
+* **Centralización de Hardware:** Implementar `hw_project_06.h` para abstraer el pinout físico de la lógica del driver.
 * **Diseñar una interfaz de usuario dinámica:** con cronómetro de sistema y caracteres especiales personalizados (CGRAM).
 
 ---
@@ -22,7 +22,7 @@ El sistema utiliza un enfoque híbrido para optimizar recursos:
 El proyecto se organiza bajo una estructura jerárquica estricta:
 
 * **Capa 0 (Common):** Lógica de manipulación de bits (`bits.h`).
-* **Capa 1 (HAL):** Abstracción de GPIO y Timer (`gpio.c`, `timer.c`).
+* **Capa 1 (HAL):** Abstracción de GPIO y Timer (`gpio.c`, `systick.c`).
 * **Capa 2 (Devices):** Driver LCD genérico que recibe punteros a registros.
 * **Capa 3 (Aplicación):** Lógica de usuario (`main.c`, `main.h`) y definición de recursos (`hardware.h`).
 
@@ -33,7 +33,7 @@ graph TD
     A[main.c - Aplicación] --> B[main.h]
     A --> C[hardware.h - Definición de Pines]
     B --> D[lcd_driver.h - Capa 2]
-    B --> E[timer.h - Capa 1]
+    B --> E[systick.h - Capa 1]
     D --> F[bits.h - Capa 0]
     E --> F
     D --> G[gpio.h - Capa 1]
@@ -43,8 +43,8 @@ graph TD
 
 ## 🛡️ 4. Detalles de Robustez y Funcionalidades
 
-### 🧩 Abstracción por hardware.h
-Se eliminaron por completo las referencias directas a registros (`PORTB`, `DDRD`, etc.) en el código de aplicación (Capa 3). Todo el mapeo físico se centraliza en `hardware.h` mediante definiciones que apuntan a los objetos `extern` de la Capa GPIO. Esto permite que el firmware sea resiliente a fallas de hardware; si un pin se daña, la reconfiguración se realiza en un único archivo sin afectar la lógica del driver o de la aplicación.
+### 🧩 Abstracción por hw_project_06.h
+Se eliminaron por completo las referencias directas a registros (`PORTB`, `DDRD`, etc.) en el código de aplicación (Capa 3). Todo el mapeo físico se centraliza en `hw_project_06.h` mediante definiciones que apuntan a los objetos `extern` de la Capa GPIO. Esto permite que el firmware sea resiliente a fallas de hardware; si un pin se daña, la reconfiguración se realiza en un único archivo sin afectar la lógica del driver o de la aplicación.
 
 ```c
 /* Ejemplo de mapeo en hardware.h */
@@ -167,7 +167,7 @@ La flexibilidad del driver y la implementación de la Capa 1 (HAL) permiten un m
 
 ## 📝 6. Conclusión
 
-La integración de `hardware.h` y la refactorización del driver LCD elevan este laboratorio a un estándar industrial. Al independizar el protocolo del LCD del **Timer 0**, se garantiza un arranque robusto del sistema y se libera el *Systick* para tareas de tiempo real críticas. 
+La integración de `hw_project_06.h` y la refactorización del driver LCD elevan este laboratorio a un estándar industrial. Al independizar el protocolo del LCD del **Timer 0**, se garantiza un arranque robusto del sistema y se libera el *Systick* para tareas de tiempo real críticas. 
 
 La arquitectura multicapa implementada demuestra que es posible crear firmware portable, escalable y mantenible en sistemas *bare-metal*. La eficiencia en la gestión de registros mediante punteros y la abstracción mediante objetos `extern` sientan las bases para el desarrollo de sistemas embebidos profesionales, donde la interactividad y la estabilidad deben coexistir sin colisiones.
 

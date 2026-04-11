@@ -1,24 +1,37 @@
+/*
+**************************************************************************************
+* PROYECTO: 01_Blink_BareMetal
+* AUTOR: Carlos Mamani Flores (UTN-FRT)
+* DESCRIPCIÓN: Configuración básica de GPIO y manejo de retardos bloqueantes para 
+* hacer parpadear dos LEDs en los pines PB0 y PB3.
+* TOOLCHAIN: GCC (avr-gcc) + VS Code + Makefile
+**************************************************************************************
+*/
+
 #define F_CPU 16000000UL 
 
-// ------- Preambulo-------- //
-#include <avr/io.h>                        /* Define pins, ports, etc */
-#include <util/delay.h>                     /* Funciones de tiempo */
-
+/* --- Preámbulo --- */
+#include <avr/io.h>         /* Definiciones de registros, pines y puertos */
+#include <util/delay.h>      /* Funciones de tiempo basadas en ciclos de reloj */
 
 int main(void) {
 
-  // -------- Inicio --------- //
-  DDRB |= ((1<<PB0)|(1<<PB3)); //Aqui solo el PB0 y PB3 son salidas
+    /* --- Configuración de Hardware (Capa 0/1) --- */
+    // Configuramos PB0 y PB3 como salidas (1) en el registro de dirección
+    DDRB |= (1 << PB0) | (1 << PB3); 
 
-  // ------ Event loop ------ //
-  while (1) {
+    /* --- Bucle de Eventos (Super Loop) --- */
+    while (1) {
 
-    PORTB |= ((1<<PB0)|(1<<PB3));          /* Enciendo el puerto*/
-    _delay_ms(500);                                           /* delay*/
+        // 1. Encendido de LEDs: Seteamos los bits correspondientes en el puerto
+        PORTB |= (1 << PB0) | (1 << PB3); 
+        _delay_ms(500); 
 
-    PORTB &= ~((1<<PB0)|(1<<PB3));          /* Apago el puerto*/
-    _delay_ms(500);                                           /* delay*/
+        // 2. Apagado de LEDs: Limpiamos los bits mediante máscara AND y NOT
+        PORTB &= ~((1 << PB0) | (1 << PB3)); 
+        _delay_ms(500); 
 
-  }                                                  /* fin del loop*/
-  return 0;                            
+    } /* Fin del Super Loop */
+
+    return 0; // El flujo nunca llegará aquí
 }

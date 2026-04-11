@@ -46,7 +46,7 @@ LDFLAGS  = -Wl,--gc-sections
 # --- ARCHIVOS FUENTE ---
 SRCS = src/main.c
 SRCS += "$(LIB_HAL)/src/gpio.c"
-SRCS += "$(LIB_HAL)/src/timer.c"
+SRCS += "$(LIB_HAL)/src/systick.c"
 
 # --- Reglas ---
 all: $(BUILD_DIR) compilacion size

@@ -70,7 +70,7 @@ $$OCRnx = 250 - 1 = \mathbf{249}$$
 Hemos evolucionado hacia una **HAL Paramétrica**. El usuario decide qué instancia usar mediante la enumeración `timer_instance_t`, mientras que la lógica de aplicación permanece agnóstica al hardware.
 
 **Estructura de la HAL:**
-- **`TIMER_Init(instance)`:** Configura los registros específicos del timer elegido (manejando las sutiles diferencias de bits de prescaler entre el Timer 0/1 y el Timer 2).
+- **`Systick_Init(instance)`:** Configura los registros específicos del timer elegido (manejando las sutiles diferencias de bits de prescaler entre el Timer 0/1 y el Timer 2).
 - **`get_tick()`:** Retorna el conteo global de milisegundos de forma atómica.
 - **`delay_ms_tick()`:** Retardo preciso basado en hardware (bloqueante pero preciso).
 

@@ -6,7 +6,7 @@
  * * @details Este driver gestiona la comunicación en modo de 4 bits. Utiliza punteros a registros 
  * para garantizar la independencia del hardware mientras mantiene la eficiencia del acceso 
  * directo. Los tiempos de delay han sido validados mediante analizador lógico para asegurar 
- * compatibilidad con clones del controlador original.
+ * compatibilidad con clones del controlador original y robustez ante cables largos.
  */
 
 #ifndef F_CPU
@@ -20,7 +20,8 @@
 
 /** * @brief Instancia local de configuración.
  * @note Se almacena en SRAM para persistir las direcciones de los puertos (punteros) 
- * pasados desde el main, evitando lecturas erróneas desde la memoria de programa.
+ * pasados desde el main, evitando lecturas erróneas desde la memoria de programa 
+ * y permitiendo un acceso rápido en cada operación de I/O.
  */
 static LCD_Config_t _lcd;
 
@@ -28,20 +29,22 @@ static LCD_Config_t _lcd;
 
 /**
  * @brief Genera un pulso de habilitación (Enable) en el display.
- * @details El pulso de 150us es superior al estándar (1us) para soportar pantallas
- * con controladores de baja calidad o cables largos.
+ * @details El pulso de 150us asegura que incluso los controladores más lentos 
+ * capturen el estado del bus de datos. 
+ * @note Basado en validaciones con analizador lógico para garantizar estabilidad HMI.
  */
 static void LCD_PulseEnable(void) {
     SET_BIT(*_lcd.port_en, _lcd.pin_en);
-    _delay_us(150);  /* Validado con captura de analizador lógico */
+    _delay_us(150);  /* Tiempo en alto (Data Setup Time) */
     CLR_BIT(*_lcd.port_en, _lcd.pin_en);
-    _delay_us(200);  /* Tiempo de espera para que el controlador procese el flanco */
+    _delay_us(200);  /* Tiempo de espera (Data Hold Time / Cycle Time) */
 }
 
 /**
  * @brief Envía un nibble de 4 bits a los pines de datos D4-D7.
- * @param nibble Valor de 4 bits (bits 0-3 del parámetro).
- * @details Realiza una escritura bit a bit para permitir el uso de pines en diferentes puertos.
+ * @param nibble Valor de 4 bits (se procesan los bits 0-3 del parámetro).
+ * @details Realiza una escritura bit a bit, lo que permite que el bus de datos 
+ * esté distribuido en diferentes puertos físicos según la conveniencia del hardware.
  */
 static void LCD_SendNibble(uint8_t nibble) {
     (nibble & 0x01) ? SET_BIT(*_lcd.port_d4, _lcd.pin_d4) : CLR_BIT(*_lcd.port_d4, _lcd.pin_d4);
@@ -60,9 +63,9 @@ static void LCD_SendByte(uint8_t byte, uint8_t is_data) {
     (is_data) ? SET_BIT(*_lcd.port_rs, _lcd.pin_rs) : CLR_BIT(*_lcd.port_rs, _lcd.pin_rs);
     
     LCD_SendNibble(byte >> 4);   /* Envía los 4 bits más significativos primero */
-    _delay_us(100);              /* Tiempo entre nibbles */
+    _delay_us(100);              /* Retardo de sincronía entre nibbles */
     LCD_SendNibble(byte & 0x0F); /* Envía los 4 bits menos significativos */
-    _delay_ms(2);                /* Delay de seguridad para comandos lentos */
+    _delay_ms(2);                /* Retardo de seguridad para asegurar el procesamiento interno */
 }
 
 /* --- Implementación de la API Pública --- */
@@ -70,60 +73,64 @@ static void LCD_SendByte(uint8_t byte, uint8_t is_data) {
 /**
  * @brief Inicializa el hardware y el controlador LCD.
  * @param config Puntero a la estructura de configuración.
- * @note Implementa la secuencia de "Software Reset" necesaria para el modo de 4 bits.
+ * @note Implementa la secuencia de "Software Reset" necesaria para estabilizar 
+ * el modo de 4 bits independientemente del estado previo del hardware.
  */
 void LCD_Init(const LCD_Config_t *config) {
-    _lcd = *config; /* Copia profunda de la configuración a SRAM */
+    _lcd = *config; /* Copia profunda de la configuración a la instancia local estática */
 
-    _delay_ms(150); /* Tiempo de espera tras el encendido (VDD estable) */
+    _delay_ms(150); /* Tiempo de espera tras el encendido para estabilización de VDD */
 
-    /* Secuencia de inicialización forzada del HD44780 */
+    /* Secuencia de inicialización forzada (Secuencia de Reset del HD44780) */
     LCD_SendNibble(0x03); _delay_ms(5);
     LCD_SendNibble(0x03); _delay_ms(1);
     LCD_SendNibble(0x03);
-    LCD_SendNibble(0x02); /* Configura definitivamente el modo 4 bits */
+    LCD_SendNibble(0x02); /* Configura definitivamente el bus en modo 4 bits */
 
-    /* Configuración por defecto: Interfaz 4-bits, 2 líneas, fuente 5x8 */
+    /* Configuración de parámetros: Interfaz 4-bits, 2 líneas (o más), fuente 5x8 */
     LCD_SendByte(0x28, 0); 
-    /* Display ON, Cursor OFF según el enum del driver */
+    /* Configuración visual: Display ON, Cursor invisible por defecto */
     LCD_SendByte(0x0C, 0); 
     LCD_Clear();
 }
 
 /**
- * @brief Limpia la memoria de video y resetea el cursor.
+ * @brief Limpia la memoria de video (DDRAM) y resetea el cursor.
+ * @note Esta operación es bloqueante por ~5ms debido a la latencia del controlador.
  */
 void LCD_Clear(void) {
     LCD_SendByte(0x01, 0);
-    _delay_ms(5); /* La operación más lenta del display */
+    _delay_ms(5); 
 }
 
 /**
- * @brief Posiciona el cursor en una coordenada (fila, columna).
+ * @brief Posiciona el cursor en una coordenada DDRAM (fila, columna).
  * @param row Fila (0-1 para 16x2, 0-3 para 20x4).
- * @param col Columna (0-15 o 0-19).
+ * @param col Columna (0-15 o 0-19 según el tipo definido en la inicialización).
  */
 void LCD_SetCursor(uint8_t row, uint8_t col) {
     uint8_t addr;
     if (_lcd.type == LCD_20X4) {
+        /* Mapeo de direcciones DDRAM para displays de 4 filas */
         uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
         addr = 0x80 + row_offsets[row] + col;
     } else {
+        /* Mapeo estándar para 16x2 */
         addr = (row == 0) ? (0x80 + col) : (0xC0 + col);
     }
     LCD_SendByte(addr, 0);
 }
 
 /**
- * @brief Escribe una cadena de texto en la posición actual.
- * @param str Puntero a la cadena (string) terminada en null.
+ * @brief Escribe una cadena de texto en la posición actual del cursor.
+ * @param str Puntero a la cadena (string) terminada en null almacenada en RAM.
  */
 void LCD_Print(const char *str) {
     while (*str) LCD_SendByte((uint8_t)(*str++), 1);
 }
 
 /**
- * @brief Escribe un único carácter.
+ * @brief Escribe un único carácter en la DDRAM o CGRAM.
  * @param data Byte de datos o carácter ASCII.
  */
 void LCD_WriteChar(char data) {
@@ -131,15 +138,15 @@ void LCD_WriteChar(char data) {
 }
 
 /**
- * @brief Cambia el aspecto del cursor (Blink, On, Off).
- * @param mode Valor definido en @ref lcd_cursor_mode_t.
+ * @brief Configura el aspecto del cursor (Blink, On, Off).
+ * @param mode Valor definido en el enum @ref lcd_cursor_mode_t.
  */
 void LCD_SetCursorMode(lcd_cursor_mode_t mode) {
     LCD_SendByte((uint8_t)mode, 0);
 }
 
 /**
- * @brief Desplaza el contenido de la pantalla sin modificar la memoria DDRAM.
+ * @brief Desplaza el contenido de la pantalla visualmente.
  * @param direction Dirección definida en @ref lcd_shift_dir_t.
  */
 void LCD_Shift(lcd_shift_dir_t direction) {
@@ -147,12 +154,13 @@ void LCD_Shift(lcd_shift_dir_t direction) {
 }
 
 /**
- * @brief Almacena un carácter personalizado en la CGRAM.
- * @param location Índice de memoria (0 a 7).
- * @param charmap Matriz de 8 bytes (5 bits significativos por fila).
+ * @brief Almacena un patrón de mapa de bits para caracteres personalizados.
+ * @param location Índice de memoria CGRAM (0 a 7).
+ * @param charmap Matriz de 8 bytes representando el símbolo (5x8 píxeles).
  */
 void LCD_CreateCustomChar(uint8_t location, uint8_t charmap[]) {
-    location &= 0x7; /* Máximo 8 caracteres personalizados */
+    location &= 0x7; /* Asegura que el índice esté en el rango de 8 slots disponibles */
+    /* Configura la dirección de CGRAM (0x40 es la base de CGRAM) */
     LCD_SendByte(0x40 | (location << 3), 0);
     for (uint8_t i = 0; i < 8; i++) {
         LCD_SendByte(charmap[i], 1);
