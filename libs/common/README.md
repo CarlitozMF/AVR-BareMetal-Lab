@@ -23,10 +23,11 @@ Para una integración veloz en las capas superiores, utilizá las siguientes mac
 
 ### 2. Lectura y Evaluación
 * **Obtener estado:** `GET_BIT(PINB, 5);`  // Retorna el valor del bit (0 o !=0)
-* **Evaluar condición:** ```c
+* **Evaluar condición:**
+ ```c
     if (BIT_IS_SET(PINB, 5)) { /* ... */ } // Retorna true si el bit es 1
     if (BIT_IS_LOW(PINB, 5)) { /* ... */ } // Retorna true si el bit es 0
-    ```
+```
 
 ---
 

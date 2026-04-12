@@ -15,6 +15,7 @@ Este directorio contiene la progresión técnica desarrollada para el **ATmega32
 | 06 | **LCD Driver** | LCD 16x2 (GPIO) | Capa 2 (Device Driver) |
 | 07 | **EXTI Event-Driven** | INT0, INT1 | Programación Reactiva (ISR) |
 | 08 | **TIM Normal Mode** | Timer 0, 1 y 2 | Orquestación Multitarea |
+| 09 | **TIM Fast Mode** | Timer 2 | Generacion de PWM |
 
 ---
 
@@ -32,6 +33,8 @@ Este directorio contiene la progresión técnica desarrollada para el **ATmega32
 ### ⏱️ Gestión de Tiempos y Timers
 5. **[05_Systick_Timer_HAL_Genérica](./05_Systick_Timer):** Configuración del Timer 0 para generar una base de tiempo (System Tick) de 1ms.
 8. **[08_TIM_Normal_Mode](./08_TIM_Normal_Mode):** Orquestación avanzada de los tres timers internos (T0, T1, T2) para control de potencia y sincronismo.
+9. **[09_TIM_Fast_Pwm](./09_TIM_Fast_Pwm):** Implementación de modulación por ancho de pulso (Fast PWM) utilizando el Timer 2.
+10. **[10_TIM_Fast_Pwm_II](./10_TIM_Fast_Pwm_II/):** Control de Led RGB mediante PWM e Intoduccion a las Tareas Cooperativas (bases de RTOS).
 
 ### 📟 Interfaz de Usuario y Dispositivos (Capa 2)
 6. **[06_LCD_Generic_Driver](./06_LCD_Generic_Driver):** Implementación del protocolo HD44780 en modo 4-bits para visualización de datos.
@@ -46,7 +49,7 @@ Este directorio contiene la progresión técnica desarrollada para el **ATmega32
 Todos los proyectos en este repositorio siguen un modelo de diseño estratificado. Esta separación de responsabilidades garantiza que el firmware sea **portable, testeable y escalable**, permitiendo cambiar el hardware sin reescribir la lógica de la aplicación.
 
 
-1. **Capa 1: Hardware Abstraction Layer (HAL):** - *Módulos:* `gpio.c`, `systick.c`, `timer.c`, `exti.c`.
+1. **Capa 1: Hardware Abstraction Layer (HAL):** - *Módulos:* `gpio.c`, `systick.c`, `systick.c`, `exti.c`.
    - *Responsabilidad:* Es la única capa que "toca" los registros del **ATmega328P**. Traduce las funcionalidades del silicio (registros DDR, PORT, TCCR) en funciones legibles. 
    - *Portabilidad:* Si migramos a un STM32, solo se reescribe esta capa.
 
@@ -56,7 +59,7 @@ Todos los proyectos en este repositorio siguen un modelo de diseño estratificad
    - *Abstracción:* Maneja la lógica de "cómo hablar con un LCD" o "cómo mover un motor".
 
 3. **Capa 3: Aplicación (Lógica de Negocio):**
-   - *Módulos:* `main.c`, `tasks.c`.
+   - *Módulos:* `main.c`.
    - *Responsabilidad:* Orquestar la lógica del usuario (ej: "Si presiono el botón, mover el motor y mostrarlo en el LCD"). 
    - *Independencia:* Es hardware-agnóstica. Se comunica exclusivamente con la **Capa 2** y servicios de la **Capa 1** (como el Systick).
 

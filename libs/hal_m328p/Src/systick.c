@@ -95,20 +95,23 @@ void delay_ms_tick(uint32_t ms) {
  * para evitar overhead o conflictos.
  */
 
-/* ISR para Timer 0 */
-ISR(TIMER0_COMPA_vect) { 
-    ms_ticks++; 
-}
-
 /* Nota: Descomentar las siguientes ISR según el Timer utilizado para el Systick.
  * Solo una de ellas debe estar activa si se desea evitar redundancia. */
 
+/* ISR para Timer 0 */
 /*
-ISR(TIMER1_COMPA_vect) { 
+ISR(TIMER0_COMPA_vect) { 
     ms_ticks++; 
 }
 */
+/* ISR para Timer 1 */
 
+ISR(TIMER1_COMPA_vect) { 
+    ms_ticks++; 
+}
+
+
+/* ISR para Timer 2 */
 /*
 ISR(TIMER2_COMPA_vect) { 
     ms_ticks++; 
