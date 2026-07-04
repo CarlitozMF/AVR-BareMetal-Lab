@@ -1,0 +1,48 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": {
+                "cwd": "${fileDirname}",
+                "env": {
+                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin;${workspaceFolder}/tools/avrdude;${env:PATH}"
+                }
+            },
+            "problemMatcher": [],
+            "icon": { "id": "trash" }
+        },
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "make",
+            "options": {
+                "cwd": "${fileDirname}",
+                "env": {
+                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin;${workspaceFolder}/tools/avrdude;${env:PATH}"
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "icon": { "id": "tools" }
+        },
+        {
+            "label": "make flash",
+            "type": "shell",
+            "command": "make flash",
+            "options": {
+                "cwd": "${fileDirname}",
+                "env": {
+                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin;${workspaceFolder}/tools/avrdude;${env:PATH}"
+                }
+            },
+            "problemMatcher": [],
+            "icon": { "id": "zap" }
+        }
+    ]
+}

@@ -99,17 +99,17 @@ void delay_ms_tick(uint32_t ms) {
  * Solo una de ellas debe estar activa si se desea evitar redundancia. */
 
 /* ISR para Timer 0 */
-/*
+
 ISR(TIMER0_COMPA_vect) { 
     ms_ticks++; 
 }
-*/
-/* ISR para Timer 1 */
 
+/* ISR para Timer 1 */
+/*
 ISR(TIMER1_COMPA_vect) { 
     ms_ticks++; 
 }
-
+*/
 
 /* ISR para Timer 2 */
 /*

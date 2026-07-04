@@ -1,0 +1,17 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.intelliSenseEngineFallback": "Disabled",
+    "C_Cpp.autocompleteAddParentheses": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "tools/": true  // <--- ESTA LÍNEA ES VITAL
+    },
+    "C_Cpp.files.exclude": {
+        "**/tools/**": true // <--- PROHÍBE A INTELLISENSE ENTRAR AQUÍ
+    }
+}

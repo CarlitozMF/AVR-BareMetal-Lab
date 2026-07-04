@@ -35,6 +35,7 @@ Este directorio contiene la progresión técnica desarrollada para el **ATmega32
 8. **[08_TIM_Normal_Mode](./08_TIM_Normal_Mode):** Orquestación avanzada de los tres timers internos (T0, T1, T2) para control de potencia y sincronismo.
 9. **[09_TIM_Fast_Pwm](./09_TIM_Fast_Pwm):** Implementación de modulación por ancho de pulso (Fast PWM) utilizando el Timer 2.
 10. **[10_TIM_Fast_Pwm_II](./10_TIM_Fast_Pwm_II/):** Control de Led RGB mediante PWM e Intoduccion a las Tareas Cooperativas (bases de RTOS).
+11. **[11_TIM_Fast_Pwm_III](./11_TIM_Fast_Pwm_III/):** Control de servos sg90 con fast pwm en timer 1 de alta resolución.
 
 ### 📟 Interfaz de Usuario y Dispositivos (Capa 2)
 6. **[06_LCD_Generic_Driver](./06_LCD_Generic_Driver):** Implementación del protocolo HD44780 en modo 4-bits para visualización de datos.
