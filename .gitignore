@@ -10,10 +10,10 @@ build/
 # --- Herramientas Locales ---
 # Ignoramos la carpeta de herramientas porque son ejecutables de Windows
 # que no deben vivir en el repositorio de código.
-tools/
+#tools/
 
 # --- VS Code ---
-.vscode/
+#.vscode/
 
 # --- Otros ---
 .DS_Store
