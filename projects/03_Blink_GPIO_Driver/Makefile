@@ -1,12 +1,12 @@
 # --- Configuración del Proyecto ---
-MAIN_NAME = main
-MCU       = atmega328p
-F_CPU     = 16000000UL
+MAIN_NAME  = main
+MCU        = atmega328p
+F_CPU      = 16000000UL
 PROGRAMMER = usbasp
-PORT      = usb
+PORT       = usb
 
 # --- Rutas de la Isla (Relativas al Makefile) ---
-# projects/01_blinky -> sube 2 niveles para llegar a la raíz de la isla
+# projects/03_Blink_GPIO_Driver -> sube 2 niveles para llegar a la raíz
 ROOT_DIR   := $(abspath ../../)
 
 ifeq ($(OS),Windows_NT)
@@ -26,26 +26,25 @@ else
     MKDIR   = mkdir -p
 endif
 
-# --- Directorios de Librerías (Usando ROOT_DIR de la isla) ---
+# --- Directorios de Librerías (Rutas Relativas Puras) ---
 BUILD_DIR   = build
-LIB_COMMON  = $(ROOT_DIR)/libs/common
-LIB_HAL     = $(ROOT_DIR)/libs/hal_m328p
-LIB_DEVICES = $(ROOT_DIR)/libs/devices
+LIB_COMMON  = ../../libs/common
+LIB_HAL     = ../../libs/hal_m328p
+LIB_DEVICES = ../../libs/devices
 
-# --- Flags y Archivos ---
-# Envolvemos las rutas con comillas para evitar errores por espacios en el nombre de usuario
-INCLUDES = -I"./inc" \
-           -I"$(LIB_COMMON)" \
-           -I"$(LIB_HAL)/inc" \
-           -I"$(LIB_DEVICES)/inc"
+# --- Flags e Includes ---
+INCLUDES = -I./inc \
+           -I$(LIB_COMMON) \
+           -I$(LIB_HAL)/inc \
+           -I$(LIB_DEVICES)/inc
 
 CFLAGS   = -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) $(INCLUDES)
 CFLAGS  += -ffunction-sections -fdata-sections
 LDFLAGS  = -Wl,--gc-sections
 
 # --- ARCHIVOS FUENTE ---
-SRCS = src/main.c
-SRCS += "$(LIB_HAL)/src/gpio.c"
+SRCS = src/main.c \
+       $(LIB_HAL)/src/gpio.c
 
 # --- Reglas ---
 all: $(BUILD_DIR) compilacion size
