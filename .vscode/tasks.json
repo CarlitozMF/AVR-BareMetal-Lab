@@ -2,31 +2,25 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "make clean",
-            "type": "shell",
-            "command": "make clean",
-            "options": {
-                "cwd": "${fileDirname}",
-                "env": {
-                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin;${workspaceFolder}/tools/avrdude;${env:PATH}"
-                }
-            },
-            "problemMatcher": [],
-            "icon": { "id": "trash" }
-        },
-        {
             "label": "make",
             "type": "shell",
-            "command": "make",
+            "command": "dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make all; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi",
             "options": {
-                "cwd": "${fileDirname}",
                 "env": {
-                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin;${workspaceFolder}/tools/avrdude;${env:PATH}"
+                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin:${workspaceFolder}/tools/avrdude:${env:PATH}"
                 }
             },
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
             },
             "problemMatcher": ["$gcc"],
             "icon": { "id": "tools" }
@@ -34,15 +28,42 @@
         {
             "label": "make flash",
             "type": "shell",
-            "command": "make flash",
+            "command": "dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make flash; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi",
             "options": {
-                "cwd": "${fileDirname}",
                 "env": {
-                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin;${workspaceFolder}/tools/avrdude;${env:PATH}"
+                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin:${workspaceFolder}/tools/avrdude:${env:PATH}"
                 }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
             },
             "problemMatcher": [],
             "icon": { "id": "zap" }
+        },
+        {
+            "label": "make clean",
+            "type": "shell",
+            "command": "dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make clean; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi",
+            "options": {
+                "env": {
+                    "PATH": "${workspaceFolder}/tools/avr-gcc/bin:${workspaceFolder}/tools/avrdude:${env:PATH}"
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [],
+            "icon": { "id": "trash" }
         }
     ]
 }

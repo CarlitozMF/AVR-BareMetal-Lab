@@ -2,16 +2,52 @@
     "C_Cpp.intelliSenseEngine": "default",
     "C_Cpp.intelliSenseEngineFallback": "Disabled",
     "C_Cpp.autocompleteAddParentheses": true,
+
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "tools/": true  // <--- ESTA LÍNEA ES VITAL
+        "**/Thumbs.db": true
     },
+
     "C_Cpp.files.exclude": {
-        "**/tools/**": true // <--- PROHÍBE A INTELLISENSE ENTRAR AQUÍ
+        "**/tools/**": true
+    },
+
+    // ==========================================================
+    // VSCODE ACTION BUTTONS CONFIGURATION (AVR TOOLCHAIN)
+    // ==========================================================
+    "actionButtons": {
+        "defaultColor": "#ffffff",
+        "loadNpmCommands": false,
+        "reloadButton": "♻️",
+        "commands": [
+            {
+                "name": "$(trash) Clean",
+                "command": "workbench.action.tasks.runTask",
+                "useVsCodeApi": true,
+                "args": ["make clean"],
+                "color": "#E5C07B",
+                "tooltip": "Limpiar archivos de compilación en el subproyecto activo"
+            },
+            {
+                "name": "$(tools) Build",
+                "command": "workbench.action.tasks.runTask",
+                "useVsCodeApi": true,
+                "args": ["make"],
+                "color": "#61AFEF",
+                "tooltip": "Compilar el proyecto AVR activo"
+            },
+            {
+                "name": "$(zap) Flash",
+                "command": "workbench.action.tasks.runTask",
+                "useVsCodeApi": true,
+                "args": ["make flash"],
+                "color": "#98C379",
+                "tooltip": "Flashear con AVRDUDE en el subproyecto activo"
+            }
+        ]
     }
 }
