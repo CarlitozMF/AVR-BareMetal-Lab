@@ -4,7 +4,7 @@
         {
             "label": "make",
             "type": "shell",
-            "command": "dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make all; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi",
+            "command": "bash -c 'dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make all; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi'",
             "options": {
                 "env": {
                     "PATH": "${workspaceFolder}/tools/avr-gcc/bin:${workspaceFolder}/tools/avrdude:${env:PATH}"
@@ -28,7 +28,7 @@
         {
             "label": "make flash",
             "type": "shell",
-            "command": "dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make flash; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi",
+            "command": "bash -c 'dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make flash; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi'",
             "options": {
                 "env": {
                     "PATH": "${workspaceFolder}/tools/avr-gcc/bin:${workspaceFolder}/tools/avrdude:${env:PATH}"
@@ -48,7 +48,7 @@
         {
             "label": "make clean",
             "type": "shell",
-            "command": "dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make clean; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi",
+            "command": "bash -c 'dir=\"$(dirname \"${file}\")\"; while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/Makefile\" ]; do dir=\"$(dirname \"$dir\")\"; done; if [ -f \"$dir/Makefile\" ]; then cd \"$dir\" && make clean; else echo \"Error: No se encontró Makefile para este subproyecto.\"; exit 1; fi'",
             "options": {
                 "env": {
                     "PATH": "${workspaceFolder}/tools/avr-gcc/bin:${workspaceFolder}/tools/avrdude:${env:PATH}"
