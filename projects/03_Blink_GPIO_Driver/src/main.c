@@ -28,7 +28,7 @@ int main(void) {
         GPIO_TogglePin(GPIO_B, 3);
         
         // Delay de 1 segundo (1000ms)
-        _delay_ms(250);
+        _delay_ms(1000);
 
     } /* Fin del Super Loop */
 

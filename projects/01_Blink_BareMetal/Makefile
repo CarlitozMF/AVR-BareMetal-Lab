@@ -6,8 +6,8 @@ PROGRAMMER = usbasp
 PORT       = usb
 
 # --- Rutas de la Isla (Relativas al Makefile) ---
-# projects/01_blinky -> sube 2 niveles para llegar a la raíz de la isla
-ROOT_DIR   := $(abspath ../../)
+# projects/0X_nombre -> sube 2 niveles para llegar a la raíz del repositorio
+ROOT_DIR   := ../..
 
 ifeq ($(OS),Windows_NT)
     TOOLS_DIR  := $(ROOT_DIR)/tools/avr-gcc
@@ -26,24 +26,24 @@ else
     MKDIR   = mkdir -p
 endif
 
-# --- Directorios de Librerías (Usando ROOT_DIR de la isla) ---
+# --- Directorios de Librerías (Rutas Relativas Puras) ---
 BUILD_DIR   = build
 LIB_COMMON  = $(ROOT_DIR)/libs/common
 LIB_HAL     = $(ROOT_DIR)/libs/hal_m328p
 LIB_DEVICES = $(ROOT_DIR)/libs/devices
 
-# --- Flags y Archivos ---
-# Envolvemos las rutas con comillas para evitar errores por espacios en el nombre de usuario
-INCLUDES = -I"./inc" \
-           -I"$(LIB_COMMON)" \
-           -I"$(LIB_HAL)/inc" \
-           -I"$(LIB_DEVICES)/inc"
+# --- Flags e Includes (Sin comillas internas para evitar errores en Linux) ---
+INCLUDES = -I./inc \
+           -I$(LIB_COMMON) \
+           -I$(LIB_HAL)/inc \
+           -I$(LIB_DEVICES)/inc
 
 CFLAGS   = -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) $(INCLUDES)
 CFLAGS  += -ffunction-sections -fdata-sections
 LDFLAGS  = -Wl,--gc-sections
 
 # --- ARCHIVOS FUENTE ---
+# Agrega los .c de las librerías que requiera este proyecto en particular
 SRCS = src/main.c
 
 # --- Reglas ---
