@@ -32,5 +32,5 @@ int main(void) {
 
     } /* Fin del Super Loop */
 
-    return 0; 
+    return 0;
 }
